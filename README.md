@@ -1,7 +1,5 @@
-# dsci_551_chadddb
-
-Developing ChatDB 
-An Interactive Natural Language Database Query System
+# Developing ChatDB 
+# An Interactive Natural Language Database Query System
 
 USC Viterbi School of Engineering
 Sep 21, 2024
