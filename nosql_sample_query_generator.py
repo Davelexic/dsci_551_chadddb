@@ -28,7 +28,7 @@ def get_sample_values(collection, field, limit=10):
     return list(values)
 
 # Function to split fields into dimensions and metrics
-def split_fields_into_dimensions_and_metrics(fields, collection):
+def split_fields_into_dimensions_and_metrics(collection):
     dimensions = set()
     metrics = set()
     for document in collection.find().limit(100):
@@ -114,11 +114,11 @@ def generate_complex_query_pipeline(dimensions, metrics, collection):
     else:
         return []
 
-# Get the fields from the collection
-fields = get_collection_fields(collection)
+# # Get the fields from the collection
+# fields = get_collection_fields(collection)
 
 # Split fields into dimensions and metrics
-dimensions, metrics = split_fields_into_dimensions_and_metrics(fields, collection)
+dimensions, metrics = split_fields_into_dimensions_and_metrics(collection)
 
 # Generate 3 sample query pipelines
 simple_query_pipeline = generate_simple_query_pipeline(dimensions, metrics, collection)
