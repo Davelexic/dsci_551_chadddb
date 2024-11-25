@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 from datetime import datetime
 from typing import Dict, List, Union, Optional
+
 # At the top of your flask-server.py
 try:
     from dotenv import load_dotenv
@@ -14,6 +15,7 @@ except ImportError:
         pass
 # Import your existing SQLite DatabaseManager
 from sqlite_database_search import DatabaseManager
+from nosql_query_parser import parse_query,build_pipeline,execute_pipeline
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -22,16 +24,31 @@ class QueryRouter:
     def __init__(self):
         # Initialize SQL database manager with your DBHub.io API key
         self.sql_manager = DatabaseManager(api_key=os.getenv('DBHUB_API_KEY'))
+        # pass
     
     def process_query(self, query: str, database_type: str) -> Dict:
         """Process the query based on selected database type"""
         try:
             if database_type == 'mongodb':
-                return {
-                    'status': 'error',
-                    'message': 'MongoDB not yet implemented',
-                    'database_used': database_type
-                }
+                try:
+                    collection, field, condition, value = parse_query(query)
+                    pipeline = build_pipeline(field, condition, value)
+                    print(pipeline,collection)
+                    results = execute_pipeline(collection, pipeline)
+                    print("Results:", results)
+                    return {
+                        'status': 'success',
+                        'data':results,
+                        'database_used': database_type
+                    }
+                except Exception as e:
+                    # print(f"Error: {e}")
+                    return {
+                        'status': 'error',
+                        'message': str(e),
+                        'database_used': database_type
+                    }
+                
             else:  # SQLite
                 results = self.sql_manager.search_database(query)
                 return {

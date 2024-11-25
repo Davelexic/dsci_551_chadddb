@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AlertCircle, Database, PlayCircle, Code } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import './App.css' 
 
 const ChatDB = () => {
   const [selectedDatabase, setSelectedDatabase] = useState('');
@@ -154,11 +155,12 @@ const ChatDB = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Header */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">ChatDB</CardTitle>
           </CardHeader>
-        </Card>
+        </Card> */}
+        <h1 className="page-title">ChatDB</h1>
 
         {/* Database Selection */}
         <Card>
