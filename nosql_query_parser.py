@@ -1,14 +1,17 @@
 import re
 from pymongo import MongoClient
+import json
+from bson import json_util
 
 # Map English to MongoDB operators
 OPERATORS_MAP = {
     "greater than": "$gt",
+    "more than": "$gt",
     "less than": "$lt",
+    "lesser than": "$lt",
     "equal to": "$eq",
     "not equal to": "$ne",
 }
-
 
 def parse_query(english_query: str):
     """
@@ -41,7 +44,9 @@ def execute_pipeline(collection_name, pipeline):
     client = MongoClient("mongodb://localhost:27017")
     db = client["chatdb"]  # Replace with your database name
     collection = db[collection_name]
-    return list(collection.aggregate(pipeline))
+    results = list(collection.aggregate(pipeline))
+    # return json.dumps(results, default=json_util.default)
+    return results,pipeline
 
 
 # # Main application
@@ -53,5 +58,5 @@ def execute_pipeline(collection_name, pipeline):
 #         print(pipeline,collection)
 #         results = execute_pipeline(collection, pipeline)
 #         print("Results:", results)
-#     except Exception as e:
+#     except Exception as e:Z
 #         print(f"Error: {e}")

@@ -3,6 +3,8 @@ from flask_cors import CORS
 import os
 from datetime import datetime
 from typing import Dict, List, Union, Optional
+import json
+from bson import json_util
 
 # At the top of your flask-server.py
 try:
@@ -31,14 +33,20 @@ class QueryRouter:
         try:
             if database_type == 'mongodb':
                 try:
+                    # print("here")
                     collection, field, condition, value = parse_query(query)
                     pipeline = build_pipeline(field, condition, value)
-                    print(pipeline,collection)
-                    results = execute_pipeline(collection, pipeline)
-                    print("Results:", results)
+                    # print(pipeline,collection)
+                    results,nosql_pipeline = execute_pipeline(collection, pipeline)
+                    results = json.dumps(results,default=json_util.default)
+                    results = json.loads(results)
+                    nosql_pipeline = json.dumps(nosql_pipeline,default=json_util.default)
+                    nosql_pipeline = json.loads(nosql_pipeline)
+                    # print(results)
                     return {
                         'status': 'success',
-                        'data':results,
+                        'data': results,
+                        'query': nosql_pipeline,
                         'database_used': database_type
                     }
                 except Exception as e:
@@ -127,9 +135,17 @@ def query_table():
         
         database_type = data.get('database_type', 'sqlite')
         result = query_router.process_query(data['query'], database_type)
-        
+        # print("in query table: ",result)
         if result['status'] == 'success':
             # Add default column headers based on query type
+            if(result['database_used'] == 'mongodb'):
+                return jsonify({
+                'status': 'success',
+                'data': result['data'],
+                'sql_query': result['query'],
+                'database_used': result['database_used']
+            })
+            
             if isinstance(result['data'], list) and result['data']:
                 if 'locations' in data['query'].lower():
                     headers = ['location_id', 'location_name']
@@ -147,6 +163,7 @@ def query_table():
                      for cell in row]
                     for row in result['data']
                 ]
+                print("print table data",table_data)
             else:
                 table_data = []
 

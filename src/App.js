@@ -11,6 +11,7 @@ const ChatDB = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState(null);
+  const [databaseType, setDatabaseType] = useState('');
 
   // Format DBHub.io response
   const formatDbHubResponse = (data) => {
@@ -57,18 +58,36 @@ const ChatDB = () => {
       addMessage('user', query);
       
       // Add system's SQL query if available in the response
-      if (data.sql_query) {
-        addMessage('sql', data.sql_query);
+      if(data.database_used === 'mongodb'){
+        if(data.sql_query){
+          addMessage('sql',JSON.stringify(data.sql_query))
+        }
       }
+      else{
+        if (data.sql_query) {
+          addMessage('sql', data.sql_query);
+        }
+      }
+
+      // Set database type for rendering
+      setDatabaseType(selectedDatabase.toLowerCase());
       
       // Format the response data
-      const formattedData = formatDbHubResponse(data.data);
+      let formattedData;
+      if(data.database_used === 'mongodb'){
+        formattedData = (data.data)
+      }
+      else{
+        formattedData = formatDbHubResponse(data.data);
+      }
       setResults(formattedData);
       
       // Format the results for chat display
-      const resultMessage = formattedData.length > 0 
-        ? `Query executed successfully. Found ${formattedData.length - 1} results.` 
-        : 'Query executed successfully. No results found.';
+      const resultMessage = formattedData.length > 0
+      ? (data.database_used === 'mongodb' 
+         ? `Query executed successfully. Found ${formattedData.length} results.`
+         : `Query executed successfully. Found ${formattedData.length - 1} results.`)
+      : 'Query executed successfully. No results found.';
       
       addMessage('system', resultMessage);
     } catch (err) {
@@ -87,6 +106,16 @@ const ChatDB = () => {
 
   const renderResults = (results) => {
     if (!results || results.length === 0) return null;
+    
+    if (databaseType === 'mongodb') {
+      return (
+        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+          <pre className="whitespace-pre-wrap text-sm overflow-x-auto">
+            {JSON.stringify(results, null, 2)}
+          </pre>
+        </div>
+      );
+    }
 
     return (
       <div className="overflow-x-auto mt-4">
