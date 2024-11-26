@@ -58,5 +58,5 @@ def execute_pipeline(collection_name, pipeline):
 #         print(pipeline,collection)
 #         results = execute_pipeline(collection, pipeline)
 #         print("Results:", results)
-#     except Exception as e:Z
+#     except Exception as e:
 #         print(f"Error: {e}")

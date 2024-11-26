@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import { AlertCircle, Database, PlayCircle, Code } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -145,6 +145,19 @@ const ChatDB = () => {
     );
   };
 
+  // Ref for scrolling to bottom
+  const messagesEndRef = useRef(null);
+
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Scroll to bottom after messages or results update
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, results]);
+
   // Render message based on type
   const renderMessage = (msg, idx, isLast) => {
     const messageClasses = {
@@ -216,6 +229,33 @@ const ChatDB = () => {
           </CardContent>
         </Card>
 
+        {/* Error Display */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Chat Messages and Results */}
+        <Card className="h-[500px] overflow-y-auto">
+          <CardHeader>
+            <CardTitle>Chat History</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {messages.map((msg, idx) => 
+              renderMessage(msg, idx, idx === messages.length - 1)
+            )}
+            {messages.length === 0 && (
+              <div className="text-center text-gray-500">
+                No messages yet. Start by selecting a database and asking a question!
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </CardContent>
+        </Card>
+
         {/* Query Input */}
         <Card>
           <CardContent>
@@ -237,32 +277,6 @@ const ChatDB = () => {
                 {loading ? 'Sending...' : 'Send'}
               </button>
             </form>
-          </CardContent>
-        </Card>
-
-        {/* Error Display */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Chat Messages and Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Chat History</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {messages.map((msg, idx) => 
-              renderMessage(msg, idx, idx === messages.length - 1)
-            )}
-            {messages.length === 0 && (
-              <div className="text-center text-gray-500">
-                No messages yet. Start by selecting a database and asking a question!
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
